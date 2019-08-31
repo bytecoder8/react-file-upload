@@ -1,4 +1,4 @@
 node_modules/
 
-client/uploads/*
-!client/uploads/.gitkeep
+client/public/uploads/*
+!client/public/uploads/.gitkeep
