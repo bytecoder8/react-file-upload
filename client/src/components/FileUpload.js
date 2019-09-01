@@ -5,15 +5,19 @@ import Progress from './Progress'
 const FileUpload = () => {
     const [ isUploading, setIsUploading ] = useState(false)
     const [ file, setFile ] = useState('')
-    const [ fileName, setFileName ] = useState('Choose File')
     const [ uploadedFile, setUploadedFile ] = useState(null)
-    const [ message, setMessage ] = useState('')
+    const [ message, setMessage ] = useState(null)
     const [ percentUploaded, setPercentUploaded ] = useState(0)
 
     const onFileChange = e => {
         const file = e.target.files[0]
-        setFile(file)
-        setFileName(file.name)
+        if (file) {
+            setFile(file)
+        } else {
+            setFile('')
+        }
+        setPercentUploaded(0)
+        setMessage(null)
     }
 
     const onFormSubmit = e => {
@@ -27,19 +31,19 @@ const FileUpload = () => {
             if (req.status === 200) {
                 try {
                     setUploadedFile(JSON.parse(req.responseText))
-                    setMessage('File Uploaded.')
+                    setMessage({msg: 'File uploaded.', type: 'success'})
                 } catch (err) {
                     console.log(err)
                 }
             } else if (req.status === 400) {
                 try {
                     const { msg } = JSON.parse(req.responseText)
-                    setMessage(msg)
+                    setMessage({msg, type: 'warning'})
                 } catch (err) {
                     console.log(err)
                 }
             } else {
-                setMessage('There was a problem with the server.')
+                setMessage({msg: 'There was a problem with the server.', type: 'danger'})
             }
             setIsUploading(false)
         }
@@ -60,24 +64,41 @@ const FileUpload = () => {
         }
 
         req.send(formData)
+        setMessage(null)
         setIsUploading(true)
+        setPercentUploaded(0.001)
     }
 
     return(
         <>
-            { message ? <Message msg={message} /> : '' }
-            <form onSubmit={onFormSubmit} encType="multipart/form-data" method="post">
-                <input type="file" onChange={onFileChange} />
-                <label htmlFor="file">
-                    { fileName }
-                </label>
-                <input type="submit" value="Upload" disabled={ isUploading ? true : false } />
-            </form>
-            <Progress percent={percentUploaded} />
-            { uploadedFile ? <div>
-                <h3>{ uploadedFile.fileName }</h3>
-                <img src={ uploadedFile.filePath } alt="uploaded file" />
-            </div> : '' }
+            <div className="row">
+                <div className="col">
+                    { message ? <Message {...message} /> : '' }
+                </div>
+            </div>
+            <div className="row">
+                <form onSubmit={onFormSubmit} encType="multipart/form-data" method="post" className="col">
+                    <div className="form-group">
+                        <label htmlFor="file1">
+                            File 1
+                        </label>
+                        <input type="file" id="file1" className="form-control-file" onChange={onFileChange} />
+                    </div>
+                    <button type="submit" className="btn btn-primary mb-2" disabled={ isUploading ? true : false }>Upload</button>
+                </form>
+            </div>
+            <div className="row">
+                <div className="col">
+                    { percentUploaded > 0 ? <Progress percent={percentUploaded} /> : '' }
+                </div>
+            </div>
+            <div className="row">
+                { uploadedFile ? <div className="col">
+                    <h2>Last files:</h2>
+                    <div>{ uploadedFile.fileName }</div>
+                    <img src={ uploadedFile.filePath } alt="uploaded file" className="img-fluid" />
+                </div> : '' }
+            </div>
         </>
     )
 }

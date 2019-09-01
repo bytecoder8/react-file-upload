@@ -9,7 +9,6 @@ const uploadsDir = __dirname + '/../client/public/uploads/'
 app.use(fileUpload())
 
 app.post('/upload', (req, res) => {
-    console.log('/upload')
     if (req.files === null) {
         return res.status(400).json({ msg: 'No file uploaded.'} )
     }

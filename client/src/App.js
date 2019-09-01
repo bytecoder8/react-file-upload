@@ -4,9 +4,10 @@ import './App.css';
 
 function App() {
   return (
-    <div className="app">
-      <h1>Files Upload App</h1>
-
+    <div className="container">
+      <div className="row">
+          <h1 className="col">Files App</h1>
+      </div>
       <FileUpload />
     </div>
   );
