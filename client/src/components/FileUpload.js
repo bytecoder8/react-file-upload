@@ -25,8 +25,15 @@ const FileUpload = () => {
         const formData = new FormData()
         formData.append('file', file)
 
+        sendFormAsync(formData)
+
+        setMessage(null)
+        setIsUploading(true)
+        setPercentUploaded(0.001)
+    }
+
+    const sendFormAsync = formData => {
         const req = new XMLHttpRequest()
-        req.open("POST", "/upload", true)
         req.onload = e => {
             if (req.status === 200) {
                 try {
@@ -49,11 +56,17 @@ const FileUpload = () => {
         }
 
         req.upload.onerror = e => {
+            setMessage({msg: e.message, type: 'danger'})
             setIsUploading(false)
         }
 
         req.upload.onabort = e => {
             setIsUploading(false)
+        }
+
+        req.ontimeout = e => {
+            setIsUploading(false)
+            setMessage({msg: `Connection timeout after ${req.timeout}`, type: 'danger'})
         }
 
         req.upload.onprogress = e => {
@@ -63,10 +76,9 @@ const FileUpload = () => {
             }
         }
 
+        // Send
+        req.open("POST", "/upload", true)
         req.send(formData)
-        setMessage(null)
-        setIsUploading(true)
-        setPercentUploaded(0.001)
     }
 
     return(
